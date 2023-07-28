@@ -14,4 +14,8 @@ Link Tree presents a view of the current note's links and backlinks in a recursi
 # Credit
 - Many thanks to Dataview for making it easy and synchronous to parse links and backlinks!
 - This plugin uses libraries including React, react-transition, react-contenteditable, and Tailwind CSS.
-- WorkFlowy's design inspired the look for the plugin. 
+- WorkFlowy's design inspired the look for the plugin.
+
+If you appreciate this plugin, I would love your support for further development!
+<a href="https://www.buymeacoffee.com/joshuatreinier" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-blue.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+
