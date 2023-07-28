@@ -12,6 +12,7 @@ export default function Search() {
       <input
         placeholder='search...'
         className='w-full rounded-lg border-none bg-transparent font-menu shadow-none'
+        value={search}
         onChange={(ev) => {
           const setState = getStore('setState')
           setState({ search: ev.target.value })

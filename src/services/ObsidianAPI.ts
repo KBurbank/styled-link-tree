@@ -1,4 +1,4 @@
-import { Component, Editor, TFile } from 'obsidian'
+import { App, Component, Editor, TFile } from 'obsidian'
 import { DataviewApi, getAPI } from 'obsidian-dataview'
 import { Actions, State, getLink, getStore } from './store'
 import _ from 'lodash'
@@ -19,9 +19,11 @@ export type Link = {
 export default class ObsidianAPI extends Component {
   setState: Actions['setState']
   setLinks: Actions['setLinks']
+  app: App
 
-  constructor() {
+  constructor(app: App) {
     super()
+    this.app = app
     dv = getAPI() as DataviewApi
     this.setState = getStore('setState')
     this.setLinks = getStore('setLinks')
@@ -33,7 +35,7 @@ export default class ObsidianAPI extends Component {
 
     this.registerEvent(
       // @ts-ignore
-      app.metadataCache.on('dataview:metadata-change', () => {
+      this.app.metadataCache.on('dataview:metadata-change', () => {
         if (!indexReady.current) return
         this.loadLinks()
       })
@@ -41,14 +43,14 @@ export default class ObsidianAPI extends Component {
 
     this.registerEvent(
       // @ts-ignore
-      app.metadataCache.on('dataview:index-ready', () => {
+      this.app.metadataCache.on('dataview:index-ready', () => {
         indexReady.current = true
         this.loadLinks()
       })
     )
 
     this.registerEvent(
-      app.workspace.on('active-leaf-change', (leaf) => {
+      this.app.workspace.on('active-leaf-change', (leaf) => {
         if (leaf?.getViewState()?.type === 'markdown' && indexReady.current)
           this.loadLinks()
       })
@@ -61,7 +63,7 @@ export default class ObsidianAPI extends Component {
   }
 
   loadLinks() {
-    const currentEditor = app.workspace.activeEditor
+    const currentEditor = this.app.workspace.activeEditor
     if (!currentEditor) {
       return
     }
@@ -85,9 +87,9 @@ export default class ObsidianAPI extends Component {
       }
     }
 
-    const file = app.vault.getAbstractFileByPath(link + '.md')
+    const file = this.app.vault.getAbstractFileByPath(link + '.md')
     if (!(file instanceof TFile)) return
-    const text = await app.vault.read(file)
+    const text = await this.app.vault.read(file)
     const paragraphs = text.split('\n')
 
     const notes: Link['notes'] = []
@@ -109,10 +111,10 @@ export default class ObsidianAPI extends Component {
   updateText(link: string, note: NonNullable<Link['notes']>[number]) {
     console.log(note)
 
-    const file = app.vault.getAbstractFileByPath(link + '.md')
+    const file = this.app.vault.getAbstractFileByPath(link + '.md')
 
     if (!(file instanceof TFile)) return
-    app.vault.process(file, (text) => {
+    this.app.vault.process(file, (text) => {
       const lines = text.split('\n')
       lines[note.line] = note.text
       console.log('new line:', lines)

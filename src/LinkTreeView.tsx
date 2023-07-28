@@ -14,7 +14,7 @@ export default class LinkTreeView extends ItemView {
     super(leaf)
     this.icon = 'list-tree'
     this.navigation = false
-    this.obsidianAPI = new ObsidianAPI()
+    this.obsidianAPI = new ObsidianAPI(this.app)
     getStore('setState')({ obsidianAPI: this.obsidianAPI })
   }
 
