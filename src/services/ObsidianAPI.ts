@@ -2,7 +2,6 @@ import { App, Component, Editor, TFile } from 'obsidian'
 import { DataviewApi, getAPI } from 'obsidian-dataview'
 import { Actions, State, getLink, getStore } from './store'
 import _ from 'lodash'
-import { link } from 'fs'
 
 let dv: DataviewApi
 
@@ -109,15 +108,12 @@ export default class ObsidianAPI extends Component {
   }
 
   updateText(link: string, note: NonNullable<Link['notes']>[number]) {
-    console.log(note)
-
     const file = this.app.vault.getAbstractFileByPath(link + '.md')
 
     if (!(file instanceof TFile)) return
     this.app.vault.process(file, (text) => {
       const lines = text.split('\n')
       lines[note.line] = note.text
-      console.log('new line:', lines)
       return lines.join('\n')
     })
   }

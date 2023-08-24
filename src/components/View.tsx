@@ -34,7 +34,6 @@ export default function View() {
               }}
             >
               {segments.map((segment, i) => {
-                const pathSegment = segments.slice(0, i + 1).join('/')
                 return (
                   <Fragment key={segments.slice(0, i + 1).join('/')}>
                     <div className='text-muted'>{segment}</div>
