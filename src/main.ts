@@ -4,7 +4,7 @@ import LinkTreeView from './LinkTreeView'
 
 type FoldableListSettings = {}
 const DEFAULT_SETTINGS: FoldableListSettings = {}
-export const LINK_TREE_VIEW = 'link-tree'
+export const STYLED_LINK_TREE_VIEW = 'styled-link-tree'
 
 export default class FoldableList extends Plugin {
   settings: FoldableListSettings
@@ -16,15 +16,16 @@ export default class FoldableList extends Plugin {
       return
     }
 
-    this.registerView(LINK_TREE_VIEW, (leaf) => new LinkTreeView(leaf))
+    this.registerView(STYLED_LINK_TREE_VIEW, (leaf) => new LinkTreeView(leaf))
+
     this.addCommand({
       icon: 'list-tree',
       callback: () => this.activateView(),
       id: 'activate-view',
-      name: 'View Link Tree',
+      name: 'View Styled Link Tree',
     })
 
-    this.addRibbonIcon('list-tree', 'Link Tree', () => this.activateView())
+    this.addRibbonIcon('list-tree', 'Styled Link Tree', () => this.activateView())
 
     await this.loadSettings()
   }
@@ -46,7 +47,7 @@ export default class FoldableList extends Plugin {
       })
       if (!dataViewPlugin) {
         new Notice('Please enable the DataView plugin for Link Tree to work.')
-        this.app.workspace.detachLeavesOfType(LINK_TREE_VIEW)
+        this.app.workspace.detachLeavesOfType(STYLED_LINK_TREE_VIEW)
         throw new Error('no Dataview')
       }
     }
@@ -55,14 +56,17 @@ export default class FoldableList extends Plugin {
   async activateView() {
     await this.getDataView()
     const leaf =
-      this.app.workspace.getLeavesOfType(LINK_TREE_VIEW)?.[0] ??
+      this.app.workspace.getLeavesOfType(STYLED_LINK_TREE_VIEW)?.[0] ??
       this.app.workspace.getRightLeaf(false)
 
     await leaf.setViewState({
-      type: LINK_TREE_VIEW,
+      type: STYLED_LINK_TREE_VIEW,
       active: true,
     })
-
+    //const filepath = this.app.vault.getAbstractFileByPath("Dataview Sidebar.md")
+    //if (filepath instanceof TFile) {
+   // await leaf.openFile(filepath)
+   // }
     this.app.workspace.revealLeaf(leaf)
   }
 }
