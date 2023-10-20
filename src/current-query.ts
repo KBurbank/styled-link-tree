@@ -26,59 +26,54 @@ async function readSettings( settingsFile: String){
 }
 
 // Render a single dataview table or list, using parameters described in the settings file
-async function render(group,toDisplayJSON,defaultValues){
-  var output = ""
+async function render(group,toDisplayJSON,defaultValues,container,component,filepath){
+  var output = "<details>"
   var safeObj = {...defaultValues}
   safeObj.headerText = group.key;
+
   if (group.key in toDisplayJSON){
     safeObj = {...safeObj, ...toDisplayJSON[group.key]}
   }
   const displayFunction = eval(safeObj.displayFunction)
-   switch (safeObj.displayType) {
+  switch (safeObj.displayType) {
     case 'list':{
-    output += "#### "+safeObj.headerText + "\n"
-    //  container.createEl("h4", "safeObj.headerText");
-   //   console.log(safeObj.headerText)
-      var myQuery = dv.markdownList(displayFunction(group.rows));
-      output += myQuery
- //     await MarkdownRenderer.render(thisApp,myQuery,listRoot,"test.md",container[1])
- return(output)
-      break;
+      output += "<summary><markdown> ### "+safeObj.headerText + "</markdown></summary>\n<markdown>"
+      let newel = container.createEl("details")
+      newel.setAttribute("open", "")
+      newel.createEl("summary").innerHTML=safeObj.headerText
+     // newel.createEl("h3").innerHTML=safeObj.headerText
+      dv.list(displayFunction(group.rows),newel, component,filepath);
+      component.load();
+      //output += myQuery
+      //     await MarkdownRenderer.render(thisApp,myQuery,listRoot,"test.md",container[1])
+      output += "</markdown></details>"
+      return(output)
     }
-    case 'hide': break;
+    case 'hide': return("");
     default: { 
-
-    // table
+      output += "<summary><markdown> ### "+safeObj.headerText + "</markdown></summary>\n<markdown>"
       
-    //  container.createEl("h4", "safeObj.headerText");
-    //output += "<h4>"+safeObj.headerText+"</h4>"
-    output += "#### "+safeObj.headerText+"\n"
-     var myQuery = dv.markdownTable(safeObj.headings, displayFunction(group.rows)); 
-     
-    //container.createEl("p", { text: "hello world" });
-   //dv.executeJs( "dv.list()", "span",  container.createEl("div"), "test.md")
-   //var myQuery = await dv.queryMarkdown("LIST from #log")
-  
-   
-   //container.innerHTML = myQuery.value
-  output = output + myQuery;
-  return(output)
-//   await MarkdownRenderer.render(thisApp,myQuery,listRoot,"test.md",container[1])
-   // myQuery,listRoot,"test.md",thisApp)
-   //dv.executeJs("Something at the root level",listRoot, "test.md", obsidianApp);
-//      console.log(container.createEl("p",{text: "safetext"}))
-break;}
-    // }
-    return(output)
-  } 
+      let newel = container.createEl("details")
+      newel.setAttribute("open", "")
+      newel.createEl("summary").innerHTML=safeObj.headerText
+    //  newel.createEl("h3").innerHTML=safeObj.headerText
+      await dv.table(safeObj.headings, displayFunction(group.rows),newel, component,filepath); 
+      component.load();
+     // output = output + myQuery;
+      output += "</markdown></details>"
+      return(output)
+    }
+
+
+    } 
   }
   
-export async function currentquery(){
+  export async function currentquery(container,component,filepath){
     const currentFile = app.workspace.getActiveViewOfType(MarkdownView)?.file?.path.replace('.md','')    
-
-
+    
+    
     // Parse arguments to decide which file to look for inlinks about and see which json file to use for settings (default "data.json")
-   // var theFile =   "test.md"
+    // var theFile =   "test.md"
     var settingsFile = "data.json"
     var thePages = dv.pages("[["+currentFile+"]]")
     
@@ -86,9 +81,7 @@ export async function currentquery(){
     // Read the settings JSON file
     
     const settings = await readSettings(settingsFile)
-    
-   // console.log(thePages)
-  
+    //console.log(settings)
     
     // Actually rendering the output
     var output = ""
@@ -96,12 +89,13 @@ export async function currentquery(){
     { 
       if (group === undefined){
         console.log("group is undefined")
+        output += "\n"
       } else {
-      output += await render(group,settings,defaultValues)
+        await render(group,settings,defaultValues,container,component,filepath)
+        //console.log(output)
       }
-   //   console.log(render(group,settings,defaultValues))
     }
-
+    
     return(output)
   }
   

@@ -1,10 +1,10 @@
 import { Notice, Plugin } from 'obsidian'
 import { getAPI } from 'obsidian-dataview'
-import LinkTreeView from './LinkTreeView'
+import SortedBacklinksView from './SortedBacklinksView'
 
 type FoldableListSettings = {}
 const DEFAULT_SETTINGS: FoldableListSettings = {}
-export const STYLED_LINK_TREE_VIEW = 'styled-link-tree'
+export const SORTED_BACKLINKS_VIEW = 'sorted-backlinks'
 
 export default class FoldableList extends Plugin {
   settings: FoldableListSettings
@@ -12,20 +12,20 @@ export default class FoldableList extends Plugin {
   async onload() {
     const dv = getAPI()
     if (!dv) {
-      new Notice('Please install Dataview to use Foldable List')
+      new Notice('Please install Dataview to use Sorted Backlinks')
       return
     }
 
-    this.registerView(STYLED_LINK_TREE_VIEW, (leaf) => new LinkTreeView(leaf))
+    this.registerView(SORTED_BACKLINKS_VIEW, (leaf) => new SortedBacklinksView(leaf))
 
     this.addCommand({
       icon: 'list-tree',
       callback: () => this.activateView(),
       id: 'activate-view',
-      name: 'View Styled Link Tree',
+      name: 'View Sorted Backlinks',
     })
 
-    this.addRibbonIcon('list-tree', 'Styled Link Tree', () => this.activateView())
+    this.addRibbonIcon('list-tree', 'Sorted Backlinks', () => this.activateView())
 
     await this.loadSettings()
   }
@@ -47,7 +47,7 @@ export default class FoldableList extends Plugin {
       })
       if (!dataViewPlugin) {
         new Notice('Please enable the DataView plugin for Link Tree to work.')
-        this.app.workspace.detachLeavesOfType(STYLED_LINK_TREE_VIEW)
+        this.app.workspace.detachLeavesOfType(SORTED_BACKLINKS_VIEW)
         throw new Error('no Dataview')
       }
     }
@@ -56,17 +56,14 @@ export default class FoldableList extends Plugin {
   async activateView() {
     await this.getDataView()
     const leaf =
-      this.app.workspace.getLeavesOfType(STYLED_LINK_TREE_VIEW)?.[0] ??
+      this.app.workspace.getLeavesOfType(SORTED_BACKLINKS_VIEW)?.[0] ??
       this.app.workspace.getRightLeaf(false)
 
     await leaf.setViewState({
-      type: STYLED_LINK_TREE_VIEW,
+      type: SORTED_BACKLINKS_VIEW,
       active: true,
     })
-    //const filepath = this.app.vault.getAbstractFileByPath("Dataview Sidebar.md")
-    //if (filepath instanceof TFile) {
-   // await leaf.openFile(filepath)
-   // }
+   
     this.app.workspace.revealLeaf(leaf)
   }
 }
