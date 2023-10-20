@@ -1,7 +1,7 @@
-import { getAPI} from 'obsidian-dataview'
-import { MarkdownView } from 'obsidian'
+import { getAPI, DataviewApi} from 'obsidian-dataview'
+import { MarkdownView, Component, App } from 'obsidian'
 
-const dv = getAPI()
+const dv: DataviewApi = getAPI() 
 //let obsidianApp = getObsidianAPI()
 
 
@@ -26,7 +26,7 @@ async function readSettings( settingsFile: String){
 }
 
 // Render a single dataview table or list, using parameters described in the settings file
-async function render(group,toDisplayJSON,defaultValues,container,component,filepath){
+async function render(group,toDisplayJSON,defaultValues,container: HTMLElement,component: Component,filepath: String){
   var output = "<details>"
   var safeObj = {...defaultValues}
   safeObj.headerText = group.key;
@@ -35,40 +35,33 @@ async function render(group,toDisplayJSON,defaultValues,container,component,file
     safeObj = {...safeObj, ...toDisplayJSON[group.key]}
   }
   const displayFunction = eval(safeObj.displayFunction)
+  if (safeObj.displayType !== "hide"){
+  let newel = container.createEl("details")
+  newel.setAttribute("open", "")
+ // newel.setCssStyles("h4")
+  newel.createEl("summary").innerHTML=safeObj.headerText
+
   switch (safeObj.displayType) {
     case 'list':{
-      output += "<summary><markdown> ### "+safeObj.headerText + "</markdown></summary>\n<markdown>"
-      let newel = container.createEl("details")
-      newel.setAttribute("open", "")
-      newel.createEl("summary").innerHTML=safeObj.headerText
-     // newel.createEl("h3").innerHTML=safeObj.headerText
       dv.list(displayFunction(group.rows),newel, component,filepath);
       component.load();
-      //output += myQuery
-      //     await MarkdownRenderer.render(thisApp,myQuery,listRoot,"test.md",container[1])
-      output += "</markdown></details>"
-      return(output)
-    }
-    case 'hide': return("");
-    default: { 
-      output += "<summary><markdown> ### "+safeObj.headerText + "</markdown></summary>\n<markdown>"
       
-      let newel = container.createEl("details")
-      newel.setAttribute("open", "")
-      newel.createEl("summary").innerHTML=safeObj.headerText
-    //  newel.createEl("h3").innerHTML=safeObj.headerText
+      return
+    }
+   
+    default: { 
+     
       await dv.table(safeObj.headings, displayFunction(group.rows),newel, component,filepath); 
       component.load();
-     // output = output + myQuery;
-      output += "</markdown></details>"
-      return(output)
+
+      return
     }
+  } 
 
-
-    } 
+    } else return
   }
   
-  export async function currentquery(container,component,filepath){
+  export async function currentquery(container: HTMLElement,component: Component,filepath: String){
     const currentFile = app.workspace.getActiveViewOfType(MarkdownView)?.file?.path.replace('.md','')    
     
     
