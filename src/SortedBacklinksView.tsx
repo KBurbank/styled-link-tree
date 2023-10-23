@@ -1,4 +1,4 @@
-import { ItemView, WorkspaceLeaf, MarkdownRenderer,MarkdownRenderChild } from 'obsidian'
+import { ItemView, WorkspaceLeaf,MarkdownRenderChild } from 'obsidian'
 import { currentquery } from 'current-query'
 
 
