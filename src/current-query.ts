@@ -39,8 +39,12 @@ async function render(group,toDisplayJSON,defaultValues,container: HTMLElement,c
   let newel = container.createEl("details")
   newel.setAttribute("open", "")
  // newel.setCssStyles("h4")
-  newel.createEl("summary").innerHTML=safeObj.headerText
-
+ let summaryEl = newel.createEl("summary")
+ summaryEl.setAttr("style","color:grey")
+ summaryEl.setAttr("class","summary-class")
+  let titleEl = summaryEl.createEl("span")
+  titleEl.innerHTML=safeObj.headerText
+  titleEl.setAttr("class","HyperMD-header HyperMD-header-2 cm-header cm-header-2 summary-title-class")
   switch (safeObj.displayType) {
     case 'list':{
       dv.list(displayFunction(group.rows),newel, component,filepath);
@@ -68,7 +72,7 @@ async function render(group,toDisplayJSON,defaultValues,container: HTMLElement,c
     // Parse arguments to decide which file to look for inlinks about and see which json file to use for settings (default "data.json")
     // var theFile =   "test.md"
     var settingsFile = "data.json"
-    var thePages = dv.pages("[["+currentFile+"]]")
+    var thePages = dv.pages("[["+currentFile+"]] or outgoing([["+currentFile+"]])")
     
     
     // Read the settings JSON file
