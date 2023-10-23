@@ -1,15 +1,18 @@
 import { ItemView, WorkspaceLeaf,MarkdownRenderChild } from 'obsidian'
 import { currentquery } from 'current-query'
+import FoldableList  from './main'
+
 
 
 export default class SortedBacklinksView extends ItemView {
-  
-  constructor(leaf: WorkspaceLeaf) {
+  plugin: FoldableList
+
+  constructor(leaf: WorkspaceLeaf, plugin: FoldableList) {
     super(leaf)
     this.leaf = leaf
     this.icon = 'list-tree'
     this.navigation = false
-    
+    this.plugin = plugin
   }
 
   getDisplayText(): string {
@@ -56,7 +59,7 @@ async updateLeaf(): Promise<void> {
    this.containerEl.setCssProps({"overflow":"auto"})
 
    newel.onClickEvent((e:any) => this.handleClick(e))
-  await currentquery(newel2,markdownRenderChild,"/")
+  await currentquery(newel2,markdownRenderChild,"/",this.plugin)
    //await MarkdownRenderer.renderMarkdown(output, newel2,"/",markdownRenderChild)
    
 }

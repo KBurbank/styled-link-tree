@@ -1,13 +1,37 @@
 import { Notice, Plugin } from 'obsidian'
 import { getAPI } from 'obsidian-dataview'
 import SortedBacklinksView from './SortedBacklinksView'
+import { ExampleSettingTab} from "./settings";
 
-type FoldableListSettings = {}
-const DEFAULT_SETTINGS: FoldableListSettings = {}
+export type FoldableListSettings = {
+  identifier: string;
+  filetypes: string;
+}
+// const DEFAULT_SETTINGS: FoldableListSettings = {}
+
+export const DEFAULT_SETTINGS: FoldableListSettings = {
+  identifier: "type",
+  filetypes: `{
+    "dailynotes": {
+    "headerText": "Daily Notes",
+    "displayFunction": "myRows => myRows.sort(k=>k.file.cday,\"desc\").map(k=>k.file.link)",
+    "displayType": "list",
+    "sortOrder": 5
+  },
+  "project": {
+    "headerText": "Projects",
+    "sortOrder": 1,
+    "headings": ["Name","Status"],
+    "displayFunction": "myRows => myRows.where(k=>k.file.inlinks.length> 0).map(k => [k.file.link,  k.status])"
+  }
+}`
+};
 export const SORTED_BACKLINKS_VIEW = 'sorted-backlinks'
 
+
+
 export default class FoldableList extends Plugin {
-  settings: FoldableListSettings
+  public settings: FoldableListSettings
 
   async onload() {
     const dv = getAPI()
@@ -16,7 +40,7 @@ export default class FoldableList extends Plugin {
       return
     }
 
-    this.registerView(SORTED_BACKLINKS_VIEW, (leaf) => new SortedBacklinksView(leaf))
+    this.registerView(SORTED_BACKLINKS_VIEW, (leaf) => new SortedBacklinksView(leaf,this))
 
     this.addCommand({
       icon: 'list-tree',
@@ -28,13 +52,18 @@ export default class FoldableList extends Plugin {
     this.addRibbonIcon('list-tree', 'Sorted Backlinks', () => this.activateView())
 
     await this.loadSettings()
+
+    this.addSettingTab(new ExampleSettingTab(this.app, this));
+
+    
   }
 
   async loadSettings() {
-    this.settings = Object.assign(DEFAULT_SETTINGS, await this.loadData())
+   this.settings = Object.assign(DEFAULT_SETTINGS, await this.loadData())
   }
 
   async saveSettings() {
+
     await this.saveData(this.settings)
   }
 

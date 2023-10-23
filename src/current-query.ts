@@ -1,5 +1,6 @@
 import { getAPI, DataviewApi} from 'obsidian-dataview'
 import { MarkdownView, Component, App } from 'obsidian'
+import  FoldableList  from './main'
 
 const dv: DataviewApi = getAPI() 
 //let obsidianApp = getObsidianAPI()
@@ -22,24 +23,24 @@ interface Settings {
 class displayInfo {
   public values:DisplayInfo
 
-
+defaultValues: DisplayInfo = {
+    headings: ["Name", "Created"],
+    displayFunction: "myRows => myRows.map(k => [k.file.link, dv.func.dateformat(k.file.ctime,'MMM dd, yyyy')])",
+    displayType: 'table',
+    sortOrder: 6,
+    headerText: ""
+  }
 
 
   constructor(XOptions?: DisplayInfo) {
-    const defaultValues: DisplayInfo = {
-      headings: ["Name", "Created"],
-      displayFunction:  'myRows => myRows.map(k => [k.file.link, dv.func.dateformat(k.file.ctime,"MMM dd, yyyy")])',
-      displayType: 'table',
-      sortOrder: 6,
-      headerText: ""
-    }
-    this.values={ ...defaultValues, ...XOptions }
+    
+    this.values={ ...this.defaultValues, ...XOptions }
   }
 
   public setValuesFromSettings(settings,key){
     if (key in settings){
       this.values.headerText=key
-      this.values={ ...settings[key]}
+      this.values={...this.defaultValues, ...settings[key]}
   }
 }
 }
@@ -93,30 +94,32 @@ async function render(group,toDisplayJSON: Object,container: HTMLElement,compone
     } else return
   }
   
-  export async function currentquery(container: HTMLElement,component: Component,filepath: String){
+  export async function currentquery(container: HTMLElement,component: Component,filepath: String, plugin: FoldableList){
     const currentFile = app.workspace.getActiveViewOfType(MarkdownView)?.file?.path.replace('.md','')    
     
     
     // Parse arguments to decide which file to look for inlinks about and see which json file to use for settings (default "data.json")
     // var theFile =   "test.md"
     var settingsFile = "sorted_backlinks_settings.json"
+    const filetypes = JSON.parse(plugin.settings.filetypes)
+    const identifier = plugin.settings.identifier
     var thePages = dv.pages("[["+currentFile+"]] or outgoing([["+currentFile+"]])")
-    
-    
+   // plugin.loadSettings()
+   
     // Read the settings JSON file
     
-    const settings = await readSettings(settingsFile)
+   // const settings = await readSettings(settingsFile)
     //console.log(settings)
     
     // Actually rendering the output
     var output = ""
-    for (let group of thePages.groupBy(p => p[settings.identifier]).sort(p=>sortOrder(p.key,settings.filetypes)))
+    for (let group of thePages.groupBy(p => p[identifier]).sort(p=>sortOrder(p.key,filetypes)))
     { 
       if (group === undefined){
         console.log("group is undefined")
         output += "\n"
       } else {
-        await render(group,settings.filetypes,container,component,filepath)
+        await render(group,filetypes,container,component,filepath)
         //console.log(output)
       }
     }
