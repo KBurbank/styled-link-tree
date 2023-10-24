@@ -38,8 +38,8 @@ defaultValues: DisplayInfo = {
   }
 
   public setValuesFromSettings(settings,key){
+    this.values.headerText=key
     if (key in settings){
-      this.values.headerText=key
       this.values={...this.defaultValues, ...settings[key]}
   }
 }
@@ -51,12 +51,6 @@ const sortOrder = (state, settings) => {
   else return 1
 }
 
-
-
-async function readSettings( settingsFile: String): Promise<Settings>{
-  const myString: string = await dv.io.load(settingsFile) 
-  return(JSON.parse(myString))
-}
 
 // Render a single dataview table or list, using parameters described in the settings file
 async function render(group,toDisplayJSON: Object,container: HTMLElement,component: Component,filepath: String){
